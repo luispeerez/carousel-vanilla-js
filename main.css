@@ -37,3 +37,25 @@ body {
 .carousel-viewport .image-reel img {
   max-width: 100%;
 }
+
+.carousel-viewport .thumbnail-reel {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  transition: all 0.5s;
+  left: 0;
+}
+
+.carousel-viewport .thumbnail-reel .thumbnail-item {
+  display: flex;
+  flex-grow: 0; /* do not grow   - initial value: 0 */
+  flex-shrink: 0; /* do not shrink - initial value: 1 */
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.carousel-viewport .thumbnail-reel .thumbnail-item img {
+  max-width: 80%;
+}
