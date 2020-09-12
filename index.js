@@ -1,36 +1,41 @@
 (function () {
   window.addEventListener("load", function () {
     var carouselViewport = document.querySelector(".carousel-viewport");
-    var viewportWidth = carouselViewport.clientWidth;
+    var prevViewportwidth = carouselViewport.clientWidth;
     var imageReel = carouselViewport.querySelector(".image-reel");
     var thumbnailsReel = document.querySelector(".thumbnail-reel");
-
     var idx = 0;
     var maxThumbs = 3;
     var thumbnails = [];
 
-    //carouselViewport.style.setProperty("height", viewportWidth + "px");
-    var viewportHeight = viewportWidth;
-
     var imageItems = carouselViewport.querySelectorAll(".image-item");
-    imageItems.forEach(function (item) {
-      item.style.setProperty("flex-basis", viewportWidth + "px");
-      item.style.setProperty("height", viewportHeight + "px");
-    });
 
     setupThumbnails(imageItems);
     setupNavigationListener();
+    setSizes();
+    setupResizeListener();
+
+    function setSizes() {
+      var viewportWidth = carouselViewport.clientWidth;
+      var viewportHeight = viewportWidth;
+      imageItems.forEach(function (item) {
+        item.style.setProperty("flex-basis", viewportWidth + "px");
+        item.style.setProperty("height", viewportHeight + "px");
+      });
+
+      var thumbWidth = calcThumbWidth();
+      thumbnails.forEach(function (thumb) {
+        thumb.style.setProperty("flex-basis", thumbWidth + "px");
+      });
+    }
 
     function setupThumbnails(items) {
-      var thumbnails = [];
-      var thumbWidth = calcThumbWidth();
       items.forEach(function (item, idx) {
         var imageEl = item.querySelector("img");
         var imgSrc = imageEl.getAttribute("src");
         var thumb = document.createElement("div");
         thumb.className = "thumbnail-item";
         thumb.setAttribute("data-image-idx", idx);
-        thumb.style.setProperty("flex-basis", thumbWidth + "px");
 
         var tImage = document.createElement("img");
         tImage.setAttribute("src", imgSrc);
@@ -70,16 +75,19 @@
     function moveTo(moveToIdx) {
       if (moveToIdx >= 0 && moveToIdx < imageItems.length) {
         idx = moveToIdx;
-        imageReel.style.setProperty("left", calcLeftOffset(idx, viewportWidth));
+        imageReel.style.setProperty(
+          "left",
+          calcLeftOffset(idx, carouselViewport.clientWidth)
+        );
         thumbnailsReel.style.setProperty(
           "left",
-          calcThumbnailsLeftOffset(idx, viewportWidth)
+          calcThumbnailsLeftOffset(idx, carouselViewport.clientWidth)
         );
       }
     }
 
-    function calcLeftOffset(i, viewportWidth) {
-      return 0 - i * viewportWidth + "px";
+    function calcLeftOffset(i, width) {
+      return 0 - i * width + "px";
     }
 
     function calcThumbnailsLeftOffset(i) {
@@ -87,19 +95,26 @@
       return 0 - i * thumbWidth + "px";
     }
 
-    function calcThumbnailsLeftOffsetGroup(i, viewportWidth) {
+    function calcThumbnailsLeftOffsetGroup(i, width) {
       var groupIdx = Math.floor(i / maxThumbs);
-      return 0 - groupIdx * viewportWidth + "px";
+      return 0 - groupIdx * width + "px";
+    }
+
+    function setupResizeListener() {
+      window.addEventListener("resize", function (ev) {
+        var newViewportWidth = carouselViewport.clientWidth;
+        if (newViewportWidth != prevViewportwidth) {
+          setSizes();
+          moveTo(idx);
+          return;
+        }
+
+        if (newViewportWidth > prevViewportwidth)
+          prevViewportwidth = newViewportWidth;
+      });
     }
 
     function setupNavigationListener() {
-      /*
-        document.addEventListener("contextmenu", function (ev) {
-        console.log("ev", ev);
-        ev.preventDefault();
-      });
-*/
-
       document.addEventListener("click", function (ev) {
         var target = ev.target;
 
@@ -118,7 +133,6 @@
         var thumbParent = target.closest(".thumbnail-item");
         if (thumbParent) {
           var thumbItem = thumbParent;
-          console.log(thumbItem);
           var moveToIdx = parseInt(
             thumbItem.getAttribute("data-image-idx"),
             10
@@ -134,14 +148,16 @@
       });
     }
 
-    document.addEventListener("keypress", function (ev) {
-      console.log("ev", ev);
-      if (ev.code === "KeyA") {
+    document.addEventListener("keydown", function (ev) {
+      var LEFT_KEY_CODE = 37;
+      var RIGHT_KEY_CODE = 39;
+
+      if (ev.code === "KeyA" || ev.keyCode === LEFT_KEY_CODE) {
         moveToPrev();
         return;
       }
 
-      if (ev.code === "KeyD") {
+      if (ev.code === "KeyD" || ev.keyCode === RIGHT_KEY_CODE) {
         moveToNext();
         return;
       }

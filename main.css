@@ -4,20 +4,33 @@ body {
 }
 
 .content {
-  max-width: 1080px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
 .carousel {
-}
-
-.carousel .nav-btn {
-  width: 200px;
+  width: 70%;
 }
 
 .carousel-viewport {
-  width: 500px;
+  position: relative;
+  width: 100%;
   overflow: hidden;
+}
+
+.carousel-viewport .nav-btn {
+  width: 200px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  z-index: 9999;
+  width: 40px;
+}
+
+.carousel .nav-btn-right {
+  left: auto;
+  right: 0;
 }
 
 .carousel-viewport .image-reel {
